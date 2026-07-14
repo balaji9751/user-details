@@ -1,0 +1,14 @@
+{
+  "name": "advance-tech-root",
+  "version": "1.0.0",
+  "description": "Root workspace workspace for Advance Tech Full-Stack Website",
+  "scripts": {
+    "install:backend": "npm install --prefix advance-tech/backend",
+    "install:client": "npm install --prefix advance-tech/client",
+    "install:all": "npm install && npm run install:backend && npm run install:client",
+    "dev:backend": "npm run dev --prefix advance-tech/backend",
+    "dev:client": "npm run dev --prefix advance-tech/client",
+    "dev": "npm run dev:backend & npm run dev:client"
+  },
+  "private": true
+}
