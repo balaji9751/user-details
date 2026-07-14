@@ -2,8 +2,11 @@ const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
 module.exports = (req, res, next) => {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1]; // Bearer <token>
+  let token = req.query.token;
+  if (!token) {
+    const authHeader = req.headers['authorization'];
+    token = authHeader && authHeader.split(' ')[1]; // Bearer <token>
+  }
 
   if (!token) {
     return res.status(401).json({ success: false, message: 'Access denied. No session token provided.' });
