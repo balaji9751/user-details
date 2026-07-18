@@ -79,7 +79,8 @@ export default function DashboardLayout() {
     { name: 'Users', path: '/admin/dashboard/users', icon: 'bi-people-fill' },
     { name: 'Reports', path: '/admin/dashboard/reports', icon: 'bi-bar-chart-fill' },
     { name: 'Downloads', path: '/admin/dashboard/downloads', icon: 'bi-cloud-arrow-down-fill' },
-    { name: 'Settings', path: '/admin/dashboard/settings', icon: 'bi-gear-fill' }
+    { name: 'Settings', path: '/admin/dashboard/settings', icon: 'bi-gear-fill' },
+    { name: 'Tally Sync', path: '/admin/dashboard/tally', icon: 'bi-arrow-repeat' }
   ];
 
   return (

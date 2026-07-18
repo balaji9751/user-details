@@ -13,8 +13,8 @@ export default function UsersList() {
   // Query Params States
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
-  const [sortField, setSortField] = useState('created_at');
-  const [sortOrder, setSortOrder] = useState('DESC');
+  const [sortField, setSortField] = useState('id');
+  const [sortOrder, setSortOrder] = useState('ASC');
   const [gender, setGender] = useState('');
   const [department, setDepartment] = useState('');
   const [state, setState] = useState('');
@@ -320,7 +320,7 @@ export default function UsersList() {
                       <td colSpan="9" className="text-center py-4 text-muted">No records match your filters.</td>
                     </tr>
                   ) : (
-                    users.map((u) => (
+                    users.map((u, idx) => (
                       <tr key={u.id}>
                         <td>
                           <input
@@ -331,7 +331,7 @@ export default function UsersList() {
                             aria-label={`Select user ${u.fullname}`}
                           />
                         </td>
-                        <td>{u.id}</td>
+                        <td>{(pagination.currentPage - 1) * pagination.limit + idx + 1}</td>
                         <td className="fw-semibold" style={{ color: 'var(--text-color)' }}>{u.fullname}</td>
                         <td className="text-muted">{u.email}</td>
                         <td className="text-muted">{u.phone}</td>

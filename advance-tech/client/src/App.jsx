@@ -11,6 +11,7 @@ import UsersList from './pages/admin/dashboard/UsersList';
 import Reports from './pages/admin/dashboard/Reports';
 import Downloads from './pages/admin/dashboard/Downloads';
 import Settings from './pages/admin/dashboard/Settings';
+import TallyConnectivity from './pages/admin/dashboard/TallyConnectivity';
 import { NotFound } from './pages/ErrorPages';
 
 // Auth Route Guard
@@ -24,8 +25,8 @@ export default function App() {
     <ToastProvider>
       <BrowserRouter>
         <Routes>
-          {/* Public Landing & Registration */}
-          <Route path="/" element={<Home />} />
+          {/* Redirect home to admin login */}
+          <Route path="/" element={<Navigate to="/admin/login" replace />} />
           
           {/* Admin Authentication */}
           <Route path="/admin/login" element={<Login />} />
@@ -44,6 +45,7 @@ export default function App() {
             <Route path="reports" element={<Reports />} />
             <Route path="downloads" element={<Downloads />} />
             <Route path="settings" element={<Settings />} />
+            <Route path="tally" element={<TallyConnectivity />} />
           </Route>
 
           {/* Fallback 404 Route */}

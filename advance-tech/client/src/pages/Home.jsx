@@ -21,8 +21,60 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
+  // Tally Integration States
+  const [tallyLedgers, setTallyLedgers] = useState([]);
+  const [showTallySelect, setShowTallySelect] = useState(false);
+  const [fetchingTally, setFetchingTally] = useState(false);
+
   // Departments List
   const departments = ['Engineering', 'Marketing', 'Sales', 'Human Resources', 'Finance', 'Operations', 'Product Management'];
+
+  const fetchTallyLedgers = async () => {
+    setFetchingTally(true);
+    try {
+      const response = await api.get('/tally/ledgers');
+      if (response.data.success) {
+        setTallyLedgers(response.data.ledgers);
+        setShowTallySelect(true);
+        showToast(`Successfully fetched ledgers from ${response.data.source}!`, 'success');
+      }
+    } catch (err) {
+      console.error(err);
+      showToast('Failed to connect to TallyPrime gateway.', 'error');
+    } finally {
+      setFetchingTally(false);
+    }
+  };
+
+  const handleSelectTallyLedger = (ledger) => {
+    let mappedDept = 'Sales';
+    if (departments.includes(ledger.under)) {
+      mappedDept = ledger.under;
+    } else if (ledger.under.toLowerCase().includes('debtor') || ledger.under.toLowerCase().includes('creditor')) {
+      mappedDept = 'Finance';
+    } else if (ledger.under.toLowerCase().includes('sale')) {
+      mappedDept = 'Sales';
+    } else if (ledger.under.toLowerCase().includes('admin') || ledger.under.toLowerCase().includes('office')) {
+      mappedDept = 'Operations';
+    }
+
+    setFormData({
+      fullname: ledger.name,
+      email: ledger.email || `${ledger.name.toLowerCase().replace(/[^a-z0-9]/g, '')}@example.com`,
+      phone: ledger.phone || '9876543210',
+      gender: 'Male',
+      dob: '1995-05-15',
+      department: mappedDept,
+      state: ledger.state || 'Maharashtra',
+      country: ledger.country || 'India',
+      address: ledger.address || 'Tally sync address placeholder',
+      pincode: ledger.pincode || '400001'
+    });
+
+    setErrors({});
+    setShowTallySelect(false);
+    showToast(`Pre-filled form with ${ledger.name} details from TallyPrime!`, 'success');
+  };
 
   const validateField = (name, value) => {
     let errorMsg = '';
@@ -202,6 +254,53 @@ export default function Home() {
               <div className="text-center mb-5">
                 <h1 className="mb-2" style={{ fontFamily: 'Inter', fontSize: '2.5rem', color: 'var(--text-color)' }}>Register Account</h1>
                 <p className="text-muted">Enter your details to create an account on Advance Tech platform</p>
+              </div>
+              {/* TallyPrime Integration Button and Select */}
+              <div className="mb-4 p-3 rounded border border-info border-opacity-25" style={{ background: 'rgba(6, 182, 212, 0.05)' }}>
+                <div className="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                  <div>
+                    <span className="fw-semibold text-dark d-block">TallyPrime Desktop Integration</span>
+                    <small className="text-muted">Import name, under, phone, and address details directly from your Tally ODBC Server.</small>
+                  </div>
+                  <button 
+                    type="button" 
+                    className="btn btn-cyan btn-sm text-white px-3 d-flex align-items-center" 
+                    style={{ background: 'var(--cyan-primary)', border: 'none' }}
+                    onClick={fetchTallyLedgers} 
+                    disabled={fetchingTally}
+                  >
+                    {fetchingTally ? (
+                      <span className="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                    ) : (
+                      <i className="bi bi-arrow-repeat me-1 fs-6"></i>
+                    )}
+                    Sync Tally Ledgers
+                  </button>
+                </div>
+
+                {showTallySelect && (
+                  <div className="mt-3">
+                    <label className="form-label text-dark fw-medium small">Select a Ledger to Import:</label>
+                    <select 
+                      className="form-select bg-white" 
+                      onChange={(e) => {
+                        const selectedIdx = e.target.value;
+                        if (selectedIdx !== "") {
+                          handleSelectTallyLedger(tallyLedgers[selectedIdx]);
+                        }
+                      }}
+                      defaultValue=""
+                      style={{ borderRadius: '8px', padding: '10px' }}
+                    >
+                      <option value="" disabled>--- Select Ledgers Synced from Tally ---</option>
+                      {tallyLedgers.map((l, idx) => (
+                        <option key={idx} value={idx}>
+                          {l.name} ({l.under}) {l.phone ? `- Tel: ${l.phone}` : ''}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
               </div>
 
               <form onSubmit={handleSubmit} noValidate>

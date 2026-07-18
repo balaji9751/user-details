@@ -86,11 +86,14 @@ app.use((err, req, res, next) => {
 });
 
 // 6. Connect to database then start server
+const tallyController = require('./controllers/tallyController');
+
 async function startServer() {
   try {
     await db.initializeDatabase();
     app.listen(PORT, () => {
       console.log(`Server is running on port ${PORT} in ${process.env.NODE_ENV || 'development'} mode.`);
+      tallyController.startTallyAutoSync();
     });
   } catch (error) {
     console.error('Could not start server due to database initialization failure.');

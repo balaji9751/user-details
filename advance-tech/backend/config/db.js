@@ -94,17 +94,22 @@ function createTables() {
           )
         `);
 
-        // Seed default admin if empty
-        const res = await pgPool.query('SELECT * FROM admins LIMIT 1');
-        if (res.rows.length === 0) {
-          const defaultPassword = 'Admin@123';
-          const hashedPassword = await bcrypt.hash(defaultPassword, 10);
-          await pgPool.query(
-            'INSERT INTO admins (username, password, fullname, email) VALUES ($1, $2, $3, $4)',
-            ['admin', hashedPassword, 'Administrator', 'admin@advancetech.com']
-          );
-          console.log('Seeded default admin user to PostgreSQL. Username: admin, Password: Admin@123');
+        // Tally Config Table for PostgreSQL
+        await pgPool.query(`
+          CREATE TABLE IF NOT EXISTS tally_config (
+            id INTEGER PRIMARY KEY,
+            host VARCHAR(255) DEFAULT '127.0.0.1',
+            port INTEGER DEFAULT 8000,
+            sync_interval INTEGER DEFAULT 10,
+            auto_sync BOOLEAN DEFAULT TRUE
+          )
+        `);
+        // Seed default config if empty
+        const configRes = await pgPool.query('SELECT * FROM tally_config LIMIT 1');
+        if (configRes.rows.length === 0) {
+          await pgPool.query('INSERT INTO tally_config (id, host, port, sync_interval, auto_sync) VALUES (1, $1, $2, $3, $4)', ['127.0.0.1', 8000, 10, true]);
         }
+
         resolve();
       } catch (err) {
         reject(err);
@@ -153,6 +158,23 @@ function createTables() {
               created_at DATETIME DEFAULT CURRENT_TIMESTAMP
             )
           `);
+
+          // Tally Config Table for SQLite
+          sqliteDb.run(`
+            CREATE TABLE IF NOT EXISTS tally_config (
+              id INTEGER PRIMARY KEY,
+              host TEXT DEFAULT '127.0.0.1',
+              port INTEGER DEFAULT 8000,
+              sync_interval INTEGER DEFAULT 10,
+              auto_sync INTEGER DEFAULT 1
+            )
+          `, () => {
+            sqliteDb.all('SELECT * FROM tally_config LIMIT 1', [], (err, rows) => {
+              if (!err && rows.length === 0) {
+                sqliteDb.run('INSERT INTO tally_config (id, host, port, sync_interval, auto_sync) VALUES (1, ?, ?, ?, ?)', ['127.0.0.1', 8000, 10, 1]);
+              }
+            });
+          });
 
           // Seed default admin if empty
           sqliteDb.all('SELECT * FROM admins LIMIT 1', [], async (err, rows) => {

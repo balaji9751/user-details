@@ -4,15 +4,18 @@ const router = express.Router();
 const authController = require('../controllers/authController');
 const userController = require('../controllers/userController');
 const downloadController = require('../controllers/downloadController');
+const tallyController = require('../controllers/tallyController');
 
 const authMiddleware = require('../middlewares/auth');
 const { registerValidationRules, loginValidationRules, validate } = require('../middlewares/validation');
 
 // Public routes
-router.post('/register', registerValidationRules, validate, userController.registerUser);
 router.post('/admin/login', loginValidationRules, validate, authController.login);
+router.get('/tally/ledgers', tallyController.getTallyLedger);
 
 // Protected Admin routes
+router.get('/tally/config', authMiddleware, tallyController.getSyncConfig);
+router.post('/tally/config', authMiddleware, tallyController.updateSyncConfig);
 router.get('/users', authMiddleware, userController.getUsers);
 router.get('/users/dashboard/stats', authMiddleware, userController.getDashboardStats);
 router.get('/users/:id', authMiddleware, userController.getUserById);
