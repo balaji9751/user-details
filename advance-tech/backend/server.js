@@ -41,10 +41,10 @@ app.use(cors({
 // Prevent client caching for dynamic resources
 app.use(nocache());
 
-// Rate Limiter: Limit requests to 150 per 15 minutes per IP
+// Rate Limiter: Limit requests to 500 per 15 minutes per IP
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 150,
+  max: 500,
   message: { success: false, message: 'Too many requests from this IP, please try again after 15 minutes.' },
   standardHeaders: true,
   legacyHeaders: false,
